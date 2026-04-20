@@ -34,3 +34,6 @@ Options:
 - [ ] Fill sheet left -> right, top -> bottom instead of what the hell is currently happening
 - [ ] Add size optimizer that tries to find the smallest possible max_size for the output sprite sheet
 - [ ] Ratatui 👀
+
+## Credits
+- [https://kenney.nl](https://kenney.nl) for the example sprites 👑
