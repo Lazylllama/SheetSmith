@@ -1,0 +1,15 @@
+/target
+
+# Dont push input files
+/input/*.*
+
+# Keep folder
+!.gitkeep
+
+# Ignore all new png and json files
+/*.png
+/*.json
+
+# Keep examples
+!/example.png
+!/example.json
