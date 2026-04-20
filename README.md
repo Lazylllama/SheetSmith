@@ -1,6 +1,7 @@
 # SheetSmith
 > [!IMPORTANT]
 > In heavy development, will change alot.
+
 A simple sprite sheet packer written in Rust. It takes a directory of images and packs them into a single sprite sheet, along with metadata about the position and size of each sprite.
 
 ## Usage
@@ -20,7 +21,7 @@ Options:
 ```
 
 ## Example Sheet
-![Example Sheet](https://raw.githubusercontent.com/lazyllama/sheetsmith/main/example.png)
+![Example Sheet](https://github.com/Lazylllama/SheetSmith/blob/main/example.png)
 
 ## Notable Dependecies
 - anyhow [error handling]
