@@ -29,13 +29,17 @@ pub struct Args {
     /// Algorithm to use for packing.
     /// Options: guillotiere
     // TODO: Add maxrect and skyline algorithms maybe maybe
-    #[arg(short, long, default_value = "guillotiere")]
+    #[arg(long = "alg", default_value = "guillotiere")]
     pub algorithm: String,
 
     /// Trim transparent pixels from the edges of images before packing
     /// This can help GREATLY reduce the size of the output sprite sheet and improve packing efficiency.
     #[arg(short, long, default_value_t = false)]
     pub trim_transparent: bool,
+
+    /// Automatically find a good sheet size
+    #[arg(short, long, default_value_t = false)]
+    pub auto_size: bool,
 
     /// Debug mode: Print more often to find problematic images
     #[arg(short, long, default_value_t = false)]
@@ -94,6 +98,7 @@ pub fn check_args(args: &Args) -> Result<()> {
     Ok(())
 }
 
+// Trim transparency of image
 pub fn trim_image(name: &str, image: &RgbaImage, debug: bool) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
     let mut trimmed_image = image.clone();
     let (width, height) = trimmed_image.dimensions();
@@ -137,4 +142,46 @@ pub fn trim_image(name: &str, image: &RgbaImage, debug: bool) -> ImageBuffer<Rgb
     }
 
     return trimmed_image;
+}
+
+pub fn find_optimal_size(image_files: Vec<(String, RgbaImage)>, padding: u32) -> i32 {
+    println!("----------------------------------");
+    println!(
+        "!! USING HIGHLY EXPERIMENTAL FEATURE, REMOVE \"-a\" or \"--auto-size\" IF THIS GETS STUCK OR DOESNT WORK !!"
+    );
+
+    let mut total_area = 0;
+
+    for (_filename, image) in &image_files {
+        total_area += image.width() * image.height();
+    }
+
+    total_area += (image_files.len() as u32 - 1) * padding * padding; // Add padding for each image
+
+    let mut new_image_files = image_files.clone();
+    while (new_image_files.len() as f32).sqrt().fract() != 0.0 {
+        new_image_files.push((new_image_files[0].0.clone(), new_image_files[0].1.clone()));
+        total_area += new_image_files[0].1.width() * new_image_files[0].1.height(); // Add fake area
+    }
+
+    let sqrt_area = (total_area as f64).sqrt() as i32;
+    sqrt_area + (padding * padding) as i32
+}
+
+/// Startup Ascii Text
+pub fn ascii_text() -> String {
+    let mut text = String::from("");
+    text.push_str("================================================================\n");
+
+    text.push_str("||   _____            _ _       _____           _ _   _       ||\n");
+    text.push_str("||  /  ___|          (_) |     /  ___|         (_) | | |      ||\n");
+    text.push_str("||  \\ `--. _ __  _ __ _| |_ ___\\ `--. _ __ ___  _| |_| |__    ||\n");
+    text.push_str("||   `--. \\ '_ \\| '__| | __/ _ \\`--. \\ '_ ` _ \\| | __| '_ \\   ||\n");
+    text.push_str("||  /\\__/ / |_) | |  | | ||  __/\\__/ / | | | | | | |_| | | |  ||\n");
+    text.push_str("||  \\____/| .__/|_|  |_|\\__\\___\\____/|_| |_| |_|_|\\__|_| |_|  ||\n");
+    text.push_str("||        | |                                                 ||\n");
+    text.push_str("||        |_|                                                 ||\n");
+
+    text.push_str("================================================================");
+    return text;
 }

@@ -1,10 +1,11 @@
 use anyhow::{Context, Ok, Result};
 use clap::Parser;
-use guillotiere::*;
 use image::*;
 
 //* Bigboy functions */
+mod algorithms;
 mod utils;
+
 fn main() {
     if let Err(err) = run() {
         eprintln!("error: {err:#}");
@@ -16,6 +17,8 @@ fn main() {
 }
 
 fn run() -> Result<()> {
+    println!("{}", utils::ascii_text());
+
     let args = utils::Args::parse();
 
     // Validate args
@@ -89,47 +92,21 @@ fn run() -> Result<()> {
         println!("----------------------------------");
     }
 
-    // Pack images using Guillotiere
-    let mut atlas = AtlasAllocator::new(size2(args.max_size, args.max_size));
-    let mut placements: Vec<(String, Allocation)> = Vec::new();
-    for (filename, image) in &image_files {
-        let allocation = atlas
-            .allocate(size2(
-                image.width() as i32 + args.padding * 2,
-                image.height() as i32 + args.padding * 2,
-            ))
-            .ok_or_else(|| {
-                anyhow::anyhow!(
-                    "Failed to allocate space for '{}' in atlas (max_size={}, padding={}). Try reducing the number of images, increasing max_size, or decreasing padding.",
-                    filename,
-                    args.max_size,
-                    args.padding
-                )
-            })?;
-        placements.push((filename.clone(), allocation));
+    let mut max_size = args.max_size;
+    if args.auto_size {
+        max_size = utils::find_optimal_size(image_files.clone(), args.padding as u32);
     }
 
-    // Create output image
-    let mut output_image = RgbaImage::new(
-        atlas.size().to_array()[0] as u32,
-        atlas.size().to_array()[1] as u32,
-    );
-
-    // Place images onto output image
-    for (filename, rect) in &placements {
-        let image = image_files
-            .iter()
-            .find(|(name, _)| name == filename)
-            .unwrap()
-            .1
-            .clone();
-
-        image::imageops::overlay(
-            &mut output_image,
-            &image,
-            rect.rectangle.min.to_array()[0] as i64 + args.padding as i64,
-            rect.rectangle.min.to_array()[1] as i64 + args.padding as i64,
-        );
+    // Pack images using selected alg
+    let mut output_image = RgbaImage::new(0, 0);
+    if args.algorithm == "guillotiere" {
+        output_image =
+            algorithms::pack_images_guillotiere(algorithms::guillotiere_alg::GuillotiereArgs {
+                max_size: max_size,
+                padding: args.padding,
+                image_files,
+            })
+            .context("Failed to pack images using Guillotiere algorithm. Try another algorithm or add \"--debug\" to your command to find the problematic image.")?;
     }
 
     // Save output image

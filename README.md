@@ -32,7 +32,7 @@ Options:
 - [ ] Implement other packing algorithms
 - [ ] Implement metadata ouput for unity
 - [ ] Fill sheet left -> right, top -> bottom instead of what the hell is currently happening
-- [ ] Add size optimizer that tries to find the smallest possible max_size for the output sprite sheet
+- [x] Add size optimizer that tries to find the smallest possible max_size for the output sprite sheet
 - [ ] Ratatui 👀
 
 ## Credits
