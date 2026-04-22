@@ -6,9 +6,9 @@
 # Keep folder
 !.gitkeep
 
-# Ignore all new png and json files
-/*.png
-/*.json
+# Ignore all new output png and json files
+output.png
+output.json
 
 # Keep examples
 !/example.png

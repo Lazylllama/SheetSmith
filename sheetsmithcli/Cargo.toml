@@ -1,0 +1,15 @@
+[package]
+name = "sheetsmithcli"
+version = "0.1.0"
+edition = "2024"
+description = "The goto cli for sprite sheet packing"
+authors = ["Simon Klovdahl <me@lazyllama.xyz>"]
+license = "MIT"
+
+[dependencies]
+sheetsmithlib = { path = "../sheetsmithlib" }
+anyhow = "1.0.102"
+clap = { version = "4.6.1", features = ["derive"] }
+crossterm = "0.29.0"
+image = "0.25.10"
+colored = "3.1.1"

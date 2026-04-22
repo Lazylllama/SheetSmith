@@ -1,18 +1,24 @@
+![Logo Sheet](https://github.com/Lazylllama/SheetSmith/blob/main/example-logo.png)
+*this image was created using sheetsmith 👀 (see /example directory)*
+
 # SheetSmith
 > [!IMPORTANT]
-> In heavy development, will change alot.
+> In heavy development, will change alot!
 
-A simple sprite sheet packer written in Rust. It takes a directory of images and packs them into a single sprite sheet, along with metadata about the position and size of each sprite.
+A simple sprite sheet packer written in Rust with different interfaces (CLI, TUI, Web, GUI). It takes a directory of images and packs them into a single sprite sheet, along with metadata about the position and size of each sprite.
 
-## Usage
+## CLI Usage
+
+**Options:**
 ```bash
-Usage: sheetsmith [OPTIONS]
+Usage: sheetsmithcli [OPTIONS]
 
 Options:
   -i, --input-dir <INPUT_DIR>  The input directory containing the images to pack [default: input]
   -o, --output <OUTPUT>        The output file for the packed sprite sheet [default: output.png]
-  -m, --max-size <MAX_SIZE>    The format of the output metadata (json or unity) The maximum size of the output sprite sheet [default: 2048]
-  -p, --padding <PADDING>      Padding between sprites in pixels [default: 2]
+      --no-color               Disable color in prints
+  -s, --size <SIZE>            The size of the output sprite sheet [default: 1080x1080]
+  -p, --padding <PADDING>      Padding between sprites in pixels [default: 0]
       --alg <ALGORITHM>        Algorithm to use for packing. Options: guillotiere [default: guillotiere]
   -t, --trim-transparent       Trim transparent pixels from the edges of images before packing This can help GREATLY reduce the size of the output sprite sheet and improve packing efficiency
   -a, --auto-size              Automatically find a good sheet size
@@ -21,13 +27,24 @@ Options:
   -V, --version                Print version
 ```
 
-## Example Sheet
+**Examples:**
+> [!NOTE]
+> Add ".exe" after sheetsmithcli if you are on windows!
+- `sheetsmithcli -o finished.png -s 2048x2048`
+  - Create a sheet with the size **2048px** wide and **2048px** in height then fill that sheet with the images in the *input* directory.
+- `sheetsmithcli -i sprites -o sheet.png -a`
+  - Will automatically find a good sheet size for the images in the sprites directory, currently only recommended if you have square images, will be made better soon.
+
+
+
+## Example Output Sheet
 ![Example Sheet](https://github.com/Lazylllama/SheetSmith/blob/main/example.png)
 
-## Notable Dependecies
+## Notable Dependencies
 - anyhow [error handling]
+- colored [colorful terminal output]
 - clap [command-line argument parsing]
-- guillotiere [sprite packing algorithm]
+- guillotiere [packing algorithm]
 
 ## Flavortown Sidequests
 
@@ -41,13 +58,13 @@ I have had two optimzationm techniques in mind when making this:
 
 ### Rusty Frontend
 - [Ratatui](https://ratatui.rs/)
-  - Selfexplanatory, for the terminal user interface, might also add a GUI version later.
+  - Selfexplanatory, for the terminal user interface, might also add a GUI version later. In the works currently.
 
 ## Todo
 - [ ] Implement other packing algorithms
 - [ ] Implement metadata ouput for unity
-- [ ] Fill sheet left -> right, top -> bottom instead of what the hell is currently happening
-- [x] Add size optimizer that tries to find the smallest possible max_size for the output sprite sheet
+- [x] ~~Fill sheet left -> right, top -> bottom instead of what the hell is currently happening~~
+- [x] ~~Add size optimizer that tries to find the smallest possible max_size for the output sprite sheet~~
 - [ ] Ratatui 👀
 - [ ] File compression
 

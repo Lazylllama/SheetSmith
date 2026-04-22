@@ -1,0 +1,12 @@
+[package]
+name = "sheetsmithlib"
+version = "0.1.0"
+edition = "2024"
+description = "The goto library for sprite sheet packing"
+authors = ["Simon Klovdahl <me@lazyllama.xyz>"]
+license = "MIT"
+
+[dependencies]
+anyhow = "1.0.102"
+guillotiere = "0.7.0"
+image = "0.25.10"
