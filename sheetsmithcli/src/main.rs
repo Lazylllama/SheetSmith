@@ -26,7 +26,7 @@ fn run() -> Result<()> {
     let args = cli_args::Args::parse();
 
     // Validate args
-    cli_args::check_args(&args).context("Argument validation failed")?;
+    cli_args::check_args(&args)?;
 
     // Set input dir again
     let input_dir = std::path::Path::new(&args.input_dir);
