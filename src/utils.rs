@@ -149,23 +149,31 @@ pub fn find_optimal_size(image_files: Vec<(String, RgbaImage)>, padding: u32) ->
     println!(
         "!! USING HIGHLY EXPERIMENTAL FEATURE, REMOVE \"-a\" or \"--auto-size\" IF THIS GETS STUCK OR DOESNT WORK !!"
     );
+    println!("Changing the padding might fix allocation issues when using auto size.");
 
-    let mut total_area = 0;
-
-    for (_filename, image) in &image_files {
-        total_area += image.width() * image.height();
+    if image_files.is_empty() {
+        return 0;
     }
-
-    total_area += (image_files.len() as u32 - 1) * padding * padding; // Add padding for each image
 
     let mut new_image_files = image_files.clone();
+    let mut total_area = 0 as f64;
+
+    // Keep square-ish layout assumption
     while (new_image_files.len() as f32).sqrt().fract() != 0.0 {
         new_image_files.push((new_image_files[0].0.clone(), new_image_files[0].1.clone()));
-        total_area += new_image_files[0].1.width() * new_image_files[0].1.height(); // Add fake area
     }
 
-    let sqrt_area = (total_area as f64).sqrt() as i32;
-    sqrt_area + (padding * padding) as i32
+    println!("{}", new_image_files.len());
+
+    for (_, image) in &new_image_files {
+        let height = image.height() + (padding * 2);
+        let width = image.width() + (padding * 2);
+        total_area += (height * width) as f64;
+    }
+
+    println!("Total Area: {}", total_area);
+
+    total_area.sqrt() as i32
 }
 
 /// Startup Ascii Text
