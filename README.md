@@ -9,6 +9,9 @@ A simple sprite sheet packer written in Rust with different interfaces (CLI, TUI
 
 ## CLI Usage
 
+> [!NOTE]
+> If you are on linux, you need to do `chmod +x sheetsmithcli` before you can run the command and prefix it with `./`, if you are on windows, add ".exe" after sheetsmithcli!`
+
 **Options:**
 ```bash
 Usage: sheetsmithcli [OPTIONS]
