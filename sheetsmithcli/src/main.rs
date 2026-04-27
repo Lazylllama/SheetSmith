@@ -19,11 +19,15 @@ fn main() {
 }
 
 fn run() -> Result<()> {
-    // Banner
-    println!("{}", utils::ascii_text());
-
     // Get args
     let args = cli_args::Args::parse();
+
+    if args.no_color {
+        colored::control::set_override(false);
+    }
+
+    // Banner
+    println!("{}", utils::ascii_text());
 
     // Validate args
     cli_args::check_args(&args)?;
