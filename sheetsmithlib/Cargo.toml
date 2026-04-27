@@ -1,6 +1,6 @@
 [package]
 name = "sheetsmithlib"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 description = "The goto library for sprite sheet packing"
 authors = ["Simon Klovdahl <me@lazyllama.xyz>"]
