@@ -12,6 +12,10 @@ A simple sprite sheet packer written in Rust with different interfaces (CLI, TUI
 > [!NOTE]
 > If you are on linux, you need to do `chmod +x sheetsmithcli` before you can run the command and prefix it with `./`, if you are on windows, add ".exe" after sheetsmithcli!`
 
+> [!IMPORTANT]s
+> For the shipwrights, if you arent one then you can disregard.
+> Last time I forgot to mention the "examples" directory, so sorry for that, se the CLI examples below for a test command you can start with so you don't have to go to itch again...
+
 **Options:**
 ```bash
 Usage: sheetsmithcli [OPTIONS]
@@ -33,6 +37,8 @@ Options:
 **Examples:**
 > [!NOTE]
 > Add ".exe" after sheetsmithcli if you are on windows!
+- `sheetsmithcli -i example -o logo.png -s 896x256`
+  - This will create the logo at the top of this readme using the sprites in `/example`. This folder is only there if you cloned the repository that is.
 - `sheetsmithcli -o finished.png -s 2048x2048`
   - Create a sheet with the size **2048px** wide and **2048px** in height then fill that sheet with the images in the *input* directory.
 - `sheetsmithcli -i sprites -o sheet.png -a`
