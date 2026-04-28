@@ -1,11 +1,12 @@
 [package]
 name = "sheetsmithlib"
-version = "0.1.1"
+version = "0.1.3"
 edition = "2024"
 description = "The goto library for sprite sheet packing"
 authors = ["Simon Klovdahl <me@lazyllama.xyz>"]
 license = "MIT"
-repository = "https://github.com/lazylllama/sheetsmith"
+repository = "https://github.com/lazyllama/sheetsmith"
+readme = "../README.md"
 
 [dependencies]
 anyhow = "1.0.102"

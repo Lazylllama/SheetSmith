@@ -1,7 +1,6 @@
 use anyhow::{Ok, Result, bail};
 use clap::Parser;
-
-use crate::utils::parse_size_arg;
+use sheetsmithlib::parse_size_arg;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]

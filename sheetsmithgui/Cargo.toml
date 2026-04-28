@@ -6,9 +6,10 @@ description = "The goto app for sprite sheet packing"
 authors = ["Simon Klovdahl <me@lazyllama.xyz>"]
 license = "MIT"
 repository = "https://github.com/lazylllama/sheetsmith"
+readme = "../README.md"
 
 [dependencies]
-sheetsmithlib = { path = "../sheetsmithlib" }
+sheetsmithlib = { version = "0.1.3", path = "../sheetsmithlib" }
 anyhow = "1.0.102"
 image = "0.25.10"
 eframe = "0.34.1"

@@ -3,7 +3,7 @@
 use anyhow::{Ok as AnyOk, Result, bail};
 use eframe::egui::{self, ViewportCommand};
 use image::RgbaImage;
-use sheetsmithlib::algorithms::{self, Algorithm};
+use sheetsmithlib::algorithms::{self};
 use std::time::Instant;
 
 struct SheetSmithApp {
@@ -58,10 +58,7 @@ impl eframe::App for SheetSmithApp {
 
             ui.vertical_centered(|ui| {
                 ui.add_space(5.0);
-                ui.add(
-                    egui::Image::new(egui::include_image!("../../example-logo.png"))
-                        .max_height(128.0),
-                );
+                ui.add(egui::Image::new(egui::include_image!("../logo.png")).max_height(128.0));
                 ui.add_space(25.0);
 
                 ui.scope_builder(ui_builder, |ui| {
@@ -104,7 +101,9 @@ impl eframe::App for SheetSmithApp {
             });
         });
 
-        ui.ctx().send_viewport_cmd(ViewportCommand::InnerSize(ui.ctx().globally_used_rect().size()));
+        ui.ctx().send_viewport_cmd(ViewportCommand::InnerSize(
+            ui.ctx().globally_used_rect().size(),
+        ));
     }
 }
 
@@ -118,7 +117,7 @@ impl SheetSmithApp {
             trim_transparent,
             auto_size,
             alg,
-            status,
+            status: _,
         } = self;
 
         ui.label("Input:");
@@ -174,7 +173,7 @@ impl SheetSmithApp {
             }
         }
 
-        let mut size;
+        let size;
 
         if self.auto_size {
             size = sheetsmithlib::find_optimal_size(image_files.clone(), self.padding as u32)?;

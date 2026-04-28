@@ -1,4 +1,4 @@
-![Logo Sheet](https://github.com/Lazylllama/SheetSmith/blob/main/example-logo.png)
+![Logo Sheet](https://raw.githubusercontent.com/Lazylllama/SheetSmith/refs/heads/main/example-logo.png)
 <p align="center"><i>this image was created using sheetsmith 👀 (see /example directory)</i></p>
 
 # SheetSmith
