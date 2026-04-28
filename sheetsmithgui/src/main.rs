@@ -21,8 +21,8 @@ fn main() -> eframe::Result {
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_title("SheetSmith GUI")
-            .with_inner_size(egui::vec2(400.0, 400.0))
-            .with_resizable(true)
+            .with_inner_size(egui::vec2(420.0, 500.0))
+            .with_resizable(false)
             .with_decorations(false)
             .with_transparent(true),
         ..Default::default()
@@ -97,13 +97,12 @@ impl eframe::App for SheetSmithApp {
                     ui.add_space(20.0);
 
                     code_block(ui, self.status.trim_start_matches('\n'));
+
+                    // Temporary solution, dont judge pls
+                    ui.add_space(200.0);
                 });
             });
         });
-
-        ui.ctx().send_viewport_cmd(ViewportCommand::InnerSize(
-            ui.ctx().globally_used_rect().size(),
-        ));
     }
 }
 
@@ -204,7 +203,6 @@ fn custom_window_frame(ui: &mut egui::Ui, title: &str, add_contents: impl FnOnce
     let panel_frame = egui::Frame::new()
         .fill(ui.global_style().visuals.window_fill())
         .corner_radius(10)
-        .stroke(ui.global_style().visuals.widgets.noninteractive.fg_stroke)
         .outer_margin(1);
 
     panel_frame.show(ui, |ui| {
