@@ -12,9 +12,9 @@ A simple sprite sheet packer written in Rust with different interfaces (CLI, TUI
 > [!NOTE]
 > If you are on linux, you need to do `chmod +x sheetsmithcli` before you can run the command and prefix it with `./`, if you are on windows, add ".exe" after sheetsmithcli!`
 
-> [!IMPORTANT]s
-> For the shipwrights, if you arent one then you can disregard.
-> Last time I forgot to mention the "examples" directory, so sorry for that, se the CLI examples below for a test command you can start with so you don't have to go to itch again...
+> [!IMPORTANT]
+> For the shipwrights/reviewers, if you arent one then you can disregard.
+> Last time I forgot to mention the "examples" directory, so sorry for that, see the CLI examples below for a test command you can start with so you don't have to go to itch again...
 
 **Options:**
 ```bash
