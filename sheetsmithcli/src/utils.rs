@@ -23,14 +23,3 @@ pub fn ascii_text() -> ColoredString {
 pub fn debug_print(message: &str) {
     println!("{} {}", "[DEBUG]".yellow(), message);
 }
-
-/// Parse size arg
-pub fn parse_size_arg(size: &str) -> Result<(u32, u32), anyhow::Error> {
-    let parts: Vec<&str> = size.split('x').collect();
-    if parts.len() != 2 {
-        anyhow::bail!("Invalid size format. Expected 'WIDTHxHEIGHT'.");
-    }
-    let width = parts[0].parse::<u32>()?;
-    let height = parts[1].parse::<u32>()?;
-    Ok((width, height))
-}

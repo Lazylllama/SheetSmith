@@ -71,3 +71,55 @@ pub fn find_optimal_size(
     let sqrt_area = total_area.sqrt();
     Ok((sqrt_area as u32, sqrt_area as u32))
 }
+
+pub fn walk_input_directory(
+    input_dir: &str,
+    debug: bool,
+) -> Result<(Vec<(String, RgbaImage)>, i32)> {
+    // Convert string to path
+    let input_dir = std::path::Path::new(&input_dir);
+
+    // Read image files from input directory
+    let mut image_count = 0;
+    let mut image_files = Vec::<(String, RgbaImage)>::new();
+    let mut entries: Vec<_> = input_dir
+        .read_dir()?
+        .filter_map(|entry| entry.ok())
+        .filter(|entry| {
+            entry.path().is_file()
+                && entry.path().extension().map_or(false, |ext| {
+                    ext.eq_ignore_ascii_case("png") || ext.eq_ignore_ascii_case("jpg")
+                })
+        })
+        .collect();
+
+    entries.sort_by(|a, b| a.file_name().cmp(&b.file_name()));
+
+    entries.iter().for_each(|entry| {
+        if debug {
+            println!("[DEBUG] Found image file: {}", entry.path().display());
+        }
+
+        image_files.push((
+            entry.file_name().to_string_lossy().to_string(),
+            image::open(entry.path())
+                .expect("Failed to open image")
+                .to_rgba8(),
+        ));
+
+        image_count += 1;
+    });
+
+    Ok((image_files, image_count))
+}
+
+/// Parse size arg
+pub fn parse_size_arg(size: &str) -> Result<(u32, u32)> {
+    let parts: Vec<&str> = size.split('x').collect();
+    if parts.len() != 2 {
+        anyhow::bail!("Invalid size format. Expected 'WIDTHxHEIGHT'.");
+    }
+    let width = parts[0].parse::<u32>()?;
+    let height = parts[1].parse::<u32>()?;
+    Ok((width, height))
+}

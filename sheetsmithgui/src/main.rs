@@ -1,7 +1,10 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
 
+use anyhow::{Ok as AnyOk, Result, bail};
 use eframe::egui::{self, ViewportCommand};
-use sheetsmithlib::algorithms;
+use image::RgbaImage;
+use sheetsmithlib::algorithms::{self, Algorithm};
+use std::time::Instant;
 
 struct SheetSmithApp {
     input_path: String,
@@ -11,13 +14,14 @@ struct SheetSmithApp {
     trim_transparent: bool,
     auto_size: bool,
     alg: algorithms::Algorithm,
+    status: String,
 }
 
 fn main() -> eframe::Result {
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_title("SheetSmith GUI")
-            .with_inner_size(egui::vec2(400.0, 500.0))
+            .with_inner_size(egui::vec2(400.0, 400.0))
             .with_resizable(true)
             .with_decorations(false)
             .with_transparent(true),
@@ -29,13 +33,14 @@ fn main() -> eframe::Result {
         options,
         Box::new(|_cc| {
             Ok(Box::new(SheetSmithApp {
-                input_path: "./input".into(),
-                output_path: "example.png".into(),
-                size: "1024x1024".into(),
-                padding: 2,
+                input_path: "../example".into(),
+                output_path: "../output.png".into(),
+                size: "896x256".into(),
+                padding: 0,
                 trim_transparent: false,
                 auto_size: false,
                 alg: algorithms::Algorithm::Guillotiere,
+                status: "Waiting...".into(),
             }))
         }),
     )
@@ -70,14 +75,36 @@ impl eframe::App for SheetSmithApp {
                             self.param_grid(ui);
                         });
 
+                    ui.add_space(20.0);
+
                     ui.vertical_centered(|ui| {
                         if ui.button("Pack!").clicked() {
-                            println!("Pack!");
+                            let start = Instant::now();
+                            if let Err(e) = self.handle_pack() {
+                                eprintln!("Error occurred: {}", e);
+                                self.status = format!(
+                                    "[{}ms] {}",
+                                    start.elapsed().as_millis(),
+                                    e.to_string()
+                                );
+                            } else {
+                                self.status = format!(
+                                    "[{}ms] Packing completed successfully at {}.",
+                                    start.elapsed().as_millis(),
+                                    self.output_path
+                                );
+                            }
                         }
                     });
+
+                    ui.add_space(20.0);
+
+                    code_block(ui, self.status.trim_start_matches('\n'));
                 });
             });
         });
+
+        ui.ctx().send_viewport_cmd(ViewportCommand::InnerSize(ui.ctx().globally_used_rect().size()));
     }
 }
 
@@ -91,6 +118,7 @@ impl SheetSmithApp {
             trim_transparent,
             auto_size,
             alg,
+            status,
         } = self;
 
         ui.label("Input:");
@@ -128,39 +156,69 @@ impl SheetSmithApp {
 
         ui.end_row();
     }
+
+    fn handle_pack(&mut self) -> Result<()> {
+        let (mut image_files, image_count) =
+            sheetsmithlib::walk_input_directory(&self.input_path, false)?;
+
+        if image_count == 0 {
+            bail!(
+                "No image files found in input directory '{}'.",
+                self.input_path
+            );
+        }
+
+        if self.trim_transparent {
+            for (_, image) in image_files.iter_mut() {
+                *image = sheetsmithlib::trim_image(image, false)?;
+            }
+        }
+
+        let mut size;
+
+        if self.auto_size {
+            size = sheetsmithlib::find_optimal_size(image_files.clone(), self.padding as u32)?;
+        } else {
+            size = sheetsmithlib::parse_size_arg(&self.size)?
+        }
+
+        // Pack images using selected alg
+        let mut output_image = RgbaImage::new(0, 0);
+        if self.alg == algorithms::Algorithm::Guillotiere {
+            output_image = sheetsmithlib::pack_images_guillotiere(
+                algorithms::guillotiere_alg::GuillotiereArgs {
+                    size,
+                    padding: self.padding,
+                    image_files,
+                },
+            )?;
+        }
+
+        // Save output image
+        output_image.save(&self.output_path)?;
+
+        AnyOk(())
+    }
 }
 
 fn custom_window_frame(ui: &mut egui::Ui, title: &str, add_contents: impl FnOnce(&mut egui::Ui)) {
-    use egui::UiBuilder;
-
     let panel_frame = egui::Frame::new()
         .fill(ui.global_style().visuals.window_fill())
         .corner_radius(10)
         .stroke(ui.global_style().visuals.widgets.noninteractive.fg_stroke)
-        .outer_margin(1); // so the stroke is within the bounds
+        .outer_margin(1);
 
     panel_frame.show(ui, |ui| {
-        let app_rect = ui.max_rect();
-
-        ui.expand_to_include_rect(app_rect); // Expand frame to include it all
-
         let title_bar_height = 32.0;
-        let title_bar_rect = {
-            let mut rect = app_rect;
-            rect.max.y = rect.min.y + title_bar_height;
-            rect
-        };
+        let (title_bar_rect, _) = ui.allocate_exact_size(
+            egui::vec2(ui.available_width(), title_bar_height),
+            egui::Sense::hover(),
+        );
         title_bar_ui(ui, title_bar_rect, title);
 
-        // Add the contents:
-        let content_rect = {
-            let mut rect = app_rect;
-            rect.min.y = title_bar_rect.max.y;
-            rect
-        }
-        .shrink(4.0);
-        let mut content_ui = ui.new_child(UiBuilder::new().max_rect(content_rect));
-        add_contents(&mut content_ui);
+        egui::Frame::new().inner_margin(4.0).show(ui, |ui| {
+            add_contents(ui);
+        });
     });
 }
 
@@ -216,7 +274,7 @@ fn title_bar_ui(ui: &mut egui::Ui, title_bar_rect: eframe::epaint::Rect, title: 
     );
 }
 
-/// Show some close/maximize/minimize buttons for the native window.
+/// Show some close button for the native window.
 fn close_maximize_minimize(ui: &mut egui::Ui) {
     use egui::{Button, RichText};
 
@@ -228,4 +286,10 @@ fn close_maximize_minimize(ui: &mut egui::Ui) {
     if close_response.clicked() {
         ui.send_viewport_cmd(egui::ViewportCommand::Close);
     }
+}
+
+fn code_block(ui: &mut egui::Ui, code: &str) {
+    let language = "rs";
+    let theme = egui_extras::syntax_highlighting::CodeTheme::from_memory(ui.ctx(), ui.style());
+    egui_extras::syntax_highlighting::code_view_ui(ui, &theme, code, language);
 }
