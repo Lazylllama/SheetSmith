@@ -5,6 +5,7 @@ version = "0.1.1"
 description = "The goto app for sprite sheet packing"
 authors = ["Simon Klovdahl <me@lazyllama.xyz>"]
 license = "MIT"
+repository = "https://github.com/lazylllama/sheetsmith"
 
 [dependencies]
 sheetsmithlib = { path = "../sheetsmithlib" }
