@@ -1,7 +1,17 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
 
-use eframe::egui::{self, ViewportCommand, Widget};
+use eframe::egui::{self, ViewportCommand};
 use sheetsmithlib::algorithms;
+
+struct SheetSmithApp {
+    input_path: String,
+    output_path: String,
+    size: String,
+    padding: i32,
+    trim_transparent: bool,
+    auto_size: bool,
+    alg: algorithms::Algorithm,
+}
 
 fn main() -> eframe::Result {
     let options = eframe::NativeOptions {
@@ -17,11 +27,19 @@ fn main() -> eframe::Result {
     eframe::run_native(
         "SheetSmith GUI",
         options,
-        Box::new(|_cc| Ok(Box::new(SheetSmithApp {}))),
+        Box::new(|_cc| {
+            Ok(Box::new(SheetSmithApp {
+                input_path: "./input".into(),
+                output_path: "example.png".into(),
+                size: "1024x1024".into(),
+                padding: 2,
+                trim_transparent: false,
+                auto_size: false,
+                alg: algorithms::Algorithm::Guillotiere,
+            }))
+        }),
     )
 }
-
-struct SheetSmithApp {}
 
 impl eframe::App for SheetSmithApp {
     fn clear_color(&self, _visuals: &egui::Visuals) -> [f32; 4] {
@@ -29,18 +47,9 @@ impl eframe::App for SheetSmithApp {
     }
 
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
-        egui_extras::install_image_loaders(ui);
+        egui_extras::install_image_loaders(ui.ctx());
         custom_window_frame(ui, "SheetSmith", |ui| {
-            let mut input_path = "..path/to/sprites".to_string();
-            let mut output_path = "example.png".to_string();
-
-            let mut size = "1024x1024".to_string();
-            let mut padding = 2 as i32;
-
-            let mut trim_transparent = false;
-            let mut auto_size = false;
-
-            let mut alg = algorithms::Algorithm::Guillotiere;
+            let ui_builder = egui::UiBuilder::new();
 
             ui.vertical_centered(|ui| {
                 ui.add_space(5.0);
@@ -49,50 +58,75 @@ impl eframe::App for SheetSmithApp {
                         .max_height(128.0),
                 );
                 ui.add_space(25.0);
-            });
 
-            ui.horizontal(|ui| {
-                ui.label("Input:");
-                ui.text_edit_singleline(&mut input_path);
-            });
-            ui.horizontal(|ui| {
-                ui.label("Output:");
-                ui.text_edit_singleline(&mut output_path);
-            });
+                ui.scope_builder(ui_builder, |ui| {
+                    ui.multiply_opacity(1.0);
 
-            ui.add_space(10.0);
+                    egui::Grid::new("param_grid")
+                        .num_columns(2)
+                        .spacing([40.0, 4.0])
+                        .striped(true)
+                        .show(ui, |ui| {
+                            self.param_grid(ui);
+                        });
 
-            ui.horizontal(|ui| {
-                ui.label("Max Size:");
-                ui.text_edit_singleline(&mut size);
-            });
-            ui.horizontal(|ui| {
-                ui.label("Padding:");
-                ui.add(egui::DragValue::new(&mut padding).range(0..=100));
-            });
-
-            ui.add_space(10.0);
-
-            ui.horizontal(|ui| {
-                ui.checkbox(&mut trim_transparent, "Trim Transparent");
-                ui.checkbox(&mut auto_size, "Auto Size");
-            });
-
-            ui.add_space(10.0);
-
-            ui.horizontal(|ui| {
-                ui.label("Algorithm:");
-                egui::ComboBox::from_label("What packing algorithm to use")
-                    .selected_text(format!("{alg:?}"))
-                    .show_ui(ui, |ui| {
-                        if ui.button("Guillotiere").clicked() {
-                            alg = algorithms::Algorithm::Guillotiere;
+                    ui.vertical_centered(|ui| {
+                        if ui.button("Pack!").clicked() {
+                            println!("Pack!");
                         }
                     });
+                });
+            });
+        });
+    }
+}
+
+impl SheetSmithApp {
+    fn param_grid(&mut self, ui: &mut egui::Ui) {
+        let Self {
+            input_path,
+            output_path,
+            size,
+            padding,
+            trim_transparent,
+            auto_size,
+            alg,
+        } = self;
+
+        ui.label("Input:");
+        ui.text_edit_singleline(input_path);
+        ui.end_row();
+
+        ui.label("Output:");
+        ui.text_edit_singleline(output_path);
+        ui.end_row();
+
+        ui.label("Max Size:");
+        ui.text_edit_singleline(size);
+        ui.end_row();
+
+        ui.label("Padding:");
+        ui.add(egui::Slider::new(padding, 0..=100));
+        ui.end_row();
+
+        ui.label("Trim Transparent");
+        ui.checkbox(trim_transparent, "Trim Transparent");
+        ui.end_row();
+
+        ui.label("Auto Size");
+        ui.checkbox(auto_size, "Auto Size");
+        ui.end_row();
+
+        ui.label("Algorithm:");
+        egui::ComboBox::new("algorithm", "")
+            .selected_text(format!("{alg:?}"))
+            .show_ui(ui, |ui| {
+                if ui.button("Guillotiere").clicked() {
+                    *alg = algorithms::Algorithm::Guillotiere;
+                }
             });
 
-            ui.horizontal(|ui| if ui.button("Pack!").clicked() {});
-        });
+        ui.end_row();
     }
 }
 
@@ -186,36 +220,12 @@ fn title_bar_ui(ui: &mut egui::Ui, title_bar_rect: eframe::epaint::Rect, title: 
 fn close_maximize_minimize(ui: &mut egui::Ui) {
     use egui::{Button, RichText};
 
-    let button_height = 12.0;
+    let button_height = 24.0;
 
     let close_response = ui
         .add(Button::new(RichText::new("❌").size(button_height)))
         .on_hover_text("Close the window");
     if close_response.clicked() {
         ui.send_viewport_cmd(egui::ViewportCommand::Close);
-    }
-
-    let is_maximized = ui.input(|i| i.viewport().maximized.unwrap_or(false));
-    if is_maximized {
-        let maximized_response = ui
-            .add(Button::new(RichText::new("🗗").size(button_height)))
-            .on_hover_text("Restore window");
-        if maximized_response.clicked() {
-            ui.send_viewport_cmd(ViewportCommand::Maximized(false));
-        }
-    } else {
-        let maximized_response = ui
-            .add(Button::new(RichText::new("🗗").size(button_height)))
-            .on_hover_text("Maximize window");
-        if maximized_response.clicked() {
-            ui.send_viewport_cmd(ViewportCommand::Maximized(true));
-        }
-    }
-
-    let minimized_response = ui
-        .add(Button::new(RichText::new("🗕").size(button_height)))
-        .on_hover_text("Minimize the window");
-    if minimized_response.clicked() {
-        ui.send_viewport_cmd(ViewportCommand::Minimized(true));
     }
 }
