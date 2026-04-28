@@ -1,20 +1,20 @@
 ![Logo Sheet](https://raw.githubusercontent.com/Lazylllama/SheetSmith/refs/heads/main/example-logo.png)
 <p align="center"><i>this image was created using sheetsmith 👀 (see /example directory)</i></p>
 
-# SheetSmith
+# SheetSmith Rust Workspace
 > [!IMPORTANT]
 > In heavy development, will change alot!
 
-A simple sprite sheet packer written in Rust with different interfaces (CLI, TUI, Web, GUI). It takes a directory of images and packs them into a single sprite sheet, along with metadata about the position and size of each sprite.
+A simple sprite sheet packer written in Rust with different interfaces (CLI & GUI). It takes a directory of images and packs them into a single sprite sheet, along with metadata about the position and size of each sprite.
+
+> [!IMPORTANT]
+> For the shipwrights/reviewers, if you arent one then you can disregard.
+> Last time I forgot to mention the "examples" directory, so sorry for that. Clone the repository and you have a fodlder with a fiew square sprites to test with. See CLI Examples for guidance, they work with GUI aswell ofc!
 
 ## CLI Usage
 
 > [!NOTE]
-> If you are on linux, you need to do `chmod +x sheetsmithcli` before you can run the command and prefix it with `./`, if you are on windows, add ".exe" after sheetsmithcli!`
-
-> [!IMPORTANT]
-> For the shipwrights/reviewers, if you arent one then you can disregard.
-> Last time I forgot to mention the "examples" directory, so sorry for that, see the CLI examples below for a test command you can start with so you don't have to go to itch again...
+> (only if you are using an executable and not crate) If you are on linux, you need to do `chmod +x sheetsmithcli` before you can run the command and prefix it with `./`, if you are on windows, add ".exe" after sheetsmithcli!`
 
 **Options:**
 ```bash
@@ -44,13 +44,18 @@ Options:
 - `sheetsmithcli -i sprites -o sheet.png -a`
   - Will automatically find a good sheet size for the images in the sprites directory, currently only recommended if you have square images, will be made better soon.
 
+## GUI Usage
+Install with `cargo install sheetsmithgui`, might take a few minutes to build but you always have the `sheetsmithcli` crate or you can download built binaries from the releases tab! <3 
 
+> [!IMPORTANT]
+> Refer to CLI options for explanations on parameters!
 
 ## Example Output Sheet
 ![Example Sheet](https://github.com/Lazylllama/SheetSmith/blob/main/example.png)
 
 ## Notable Dependencies
 - anyhow [error handling]
+- egui [ui library]
 - colored [colorful terminal output]
 - clap [command-line argument parsing]
 - guillotiere [packing algorithm]
@@ -66,15 +71,15 @@ I have had two optimzationm techniques in mind when making this:
   - Theres args you can add to your command to optimize the size and layout fo your final image, you can remove transparency on the input images and you can compress the output images if you want that, theres alot to chose from.
 
 ### Rusty Frontend
-- [Ratatui](https://ratatui.rs/)
-  - Selfexplanatory, for the terminal user interface, might also add a GUI version later. In the works currently.
+- [egui](https://www.egui.rs/)
+  - Insanely easy to use UI library that carries the GUI crate.
 
 ## Todo
 - [ ] Implement other packing algorithms
 - [ ] Implement metadata ouput for unity
 - [x] ~~Fill sheet left -> right, top -> bottom instead of what the hell is currently happening~~
 - [x] ~~Add size optimizer that tries to find the smallest possible max_size for the output sprite sheet~~
-- [ ] Ratatui 👀
+- [x] ~~Add a GUI~~
 - [ ] File compression
 
 ## Credits
